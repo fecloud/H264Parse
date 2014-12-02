@@ -4,8 +4,8 @@ public class H264NALU {
 
 	private int type;
 
-	private byte [] data;
-	
+	private byte[] data;
+
 	public int getType() {
 		return type;
 	}
@@ -16,7 +16,8 @@ public class H264NALU {
 
 	@Override
 	public String toString() {
-		return "H264NALU [type=" + Utils.getNALUTypeName(type) + "]";
+		return "H264NALU [type=" + Utils.getNALUTypeName(type) + " length="
+				+ (data != null ? data.length : 0) + "]";
 	}
 
 	public byte[] getData() {
@@ -26,5 +27,5 @@ public class H264NALU {
 	public void setData(byte[] data) {
 		this.data = data;
 	}
-	
+
 }
