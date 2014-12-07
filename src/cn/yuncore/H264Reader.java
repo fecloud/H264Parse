@@ -23,8 +23,12 @@ public class H264Reader {
 		while (in.getFilePointer() < file.length()) {
 			if (in.readByte() == 0) {
 				final byte[] bs = new byte[3];
-				if (in.read(bs) == 3) {
+				int len = in.read(bs);
+				if ( len == 3 || len  == 2) {
 					if (bs[2] == 0x1 && bs[0] == bs[1]) {
+						return in.getFilePointer() - 4;
+					}
+					else if(bs[0] == 0 && bs[1] == 0x1) {
 						return in.getFilePointer() - 4;
 					}
 				}

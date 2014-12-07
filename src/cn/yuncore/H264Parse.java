@@ -12,7 +12,7 @@ public class H264Parse {
 	public static void main(String[] args) throws IOException {
 		final long start = System.currentTimeMillis();
 		int line = -1;
-		File file = new File("test.h264");
+		File file = new File("my_funny_video.h264");
 
 		if (args != null && args.length > 0) {
 			file = new File(args[0]);
@@ -34,7 +34,7 @@ public class H264Parse {
 			if (h264nalu.getType() == 5) {
 				// System.out.println("[index:" + i + "] " + h264nalu + "\r\n");
 			}
-			System.out.println(h264nalu);
+			System.out.println(String.format("index:%s %s", i ,h264nalu));
 //			if (h264nalu.getType() == 7 || h264nalu.getType() == 8) {
 				System.out.println(Utils.formatBytes(h264nalu.getData()));
 //			}
