@@ -31,6 +31,7 @@ public class H264Parse {
 		while (null != (h264nalu = h264Reader.reader())
 				&& (line == -1 || line > i)) {
 			i++;
+			System.out.println("====================================================");
 			if (h264nalu.getType() == 5) {
 				// System.out.println("[index:" + i + "] " + h264nalu + "\r\n");
 			}
