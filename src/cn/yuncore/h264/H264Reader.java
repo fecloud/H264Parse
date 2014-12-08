@@ -1,4 +1,4 @@
-package cn.yuncore;
+package cn.yuncore.h264;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +18,8 @@ public class H264Reader {
 		if (file != null && file.exists()) {
 			in = new RandomAccessFile(file, "r");
 		}
+		System.out.println(String.format("[name:%s len:%s %sKB]",
+				file.getName(), file.length(), file.length() / 1024));
 		if (findNALU() == file.length() - 1) {
 			throw new RuntimeException("data is not found nalu");
 		}
