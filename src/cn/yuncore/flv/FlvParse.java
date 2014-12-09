@@ -3,7 +3,7 @@ package cn.yuncore.flv;
 import java.io.File;
 import java.io.IOException;
 
-import cn.yuncore.Utils;
+import cn.yuncore.util.Utils;
 
 /**
  * 锟斤拷取FLV锟侥硷拷tag

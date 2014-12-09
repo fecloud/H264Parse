@@ -1,6 +1,8 @@
-package cn.yuncore;
+package cn.yuncore.util;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public final class Utils {
 
@@ -233,5 +235,20 @@ public final class Utils {
 			break;
 		}
 		return null;
+
+	}
+	
+	public static String formatNow(){
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SS");
+		return format.format(new Date());
+	}
+	
+	public static byte[] int2Byte(int i){
+		final byte[] bystes = new byte[4];
+		bystes[0] = (byte) ((0xFF000000 & i) >>24);
+		bystes[0] = (byte) ((0xFF0000 & i) >>16);
+		bystes[0] = (byte) ((0xFF00 & i) >>8);
+		bystes[0] = (byte) ((0xFF & i));
+		return bystes;
 	}
 }

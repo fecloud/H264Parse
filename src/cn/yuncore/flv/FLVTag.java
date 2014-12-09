@@ -1,5 +1,8 @@
 package cn.yuncore.flv;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 /**
  * FLV tag
  * 
@@ -25,6 +28,23 @@ public class FLVTag {
 
 	public void setBody(FLVTagBody body) {
 		this.body = body;
+	}
+
+	public int getLength() {
+		return 0;
+	}
+
+	/**
+	 * tag二进制数据
+	 * 
+	 * @return
+	 * @throws IOException 
+	 */
+	public byte[] toBytes() throws IOException {
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		out.write(header.toBytes());
+		out.write(body.getData());
+		return out.toByteArray();
 	}
 
 	@Override

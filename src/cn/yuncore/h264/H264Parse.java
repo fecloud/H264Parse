@@ -3,7 +3,7 @@ package cn.yuncore.h264;
 import java.io.File;
 import java.io.IOException;
 
-import cn.yuncore.Utils;
+import cn.yuncore.util.Utils;
 
 public class H264Parse {
 
@@ -30,7 +30,7 @@ public class H264Parse {
 
 		H264NALU h264nalu = null;
 		int i = 0;
-		while (null != (h264nalu = h264Reader.reader())
+		while (null != (h264nalu = h264Reader.readerH264())
 				&& (line == -1 || line > i)) {
 			i++;
 			System.out.println("====================================================");

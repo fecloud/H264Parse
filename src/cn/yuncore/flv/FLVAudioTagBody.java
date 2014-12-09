@@ -1,6 +1,6 @@
 package cn.yuncore.flv;
 
-import cn.yuncore.Utils;
+import cn.yuncore.util.Utils;
 
 
 public class FLVAudioTagBody extends FLVTagBody {

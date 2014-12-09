@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class H264Reader {
+import cn.yuncore.io.MediaInputStream;
+
+public class H264Reader implements MediaInputStream {
 
 	private File file;
 
@@ -42,6 +44,7 @@ public class H264Reader {
 				}
 			}
 		}
+		index = file.length() - 1;
 		return file.length() - 1;
 	}
 
@@ -49,10 +52,20 @@ public class H264Reader {
 		in.close();
 	}
 
-	public H264NALU reader() throws IOException {
+	@Override
+	public byte[] reader() throws IOException {
+		final H264NALU h264nalu = readerH264();
+		return h264nalu != null ? h264nalu.getData() : null;
+	}
+
+	public H264NALU readerH264() throws IOException {
 
 		H264NALU h264nalu = null;
 		long start = in.getFilePointer();
+		// 已到达文件尾
+		if (start == file.length() - 1) {
+			return null;
+		}
 		long end = findNALU();
 		System.out.println(String.format("start:%s end:%s", start, end));
 		final byte[] bs = new byte[(int) (end - start)];

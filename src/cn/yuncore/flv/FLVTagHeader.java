@@ -1,6 +1,6 @@
 package cn.yuncore.flv;
 
-import cn.yuncore.Utils;
+import cn.yuncore.util.Utils;
 
 /**
  * tag header
@@ -17,7 +17,7 @@ public class FLVTagHeader {
 	/**
 	 * 音频（0x8），视频（0x9），脚本（0x12）
 	 */
-	private int type;
+	private byte type;
 
 	/**
 	 * flvbody的长度
@@ -51,7 +51,7 @@ public class FLVTagHeader {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setType(byte type) {
 		this.type = type;
 	}
 
@@ -85,6 +85,34 @@ public class FLVTagHeader {
 
 	public void setDataPostion(long dataPostion) {
 		this.dataPostion = dataPostion;
+	}
+	
+	/**
+	 * tag头二进制数据
+	 * @return
+	 */
+	public byte[] toBytes(){
+		final byte [] bytes = new byte[15];
+		
+		//写入上一个tag的大小
+		final byte [] previousTagSizeBytes = Utils.int2Byte(previousTagSize);
+		bytes[0] = previousTagSizeBytes[0];
+		bytes[1] = previousTagSizeBytes[1];
+		bytes[2] = previousTagSizeBytes[2];
+		bytes[3] = previousTagSizeBytes[3];
+		
+		//写入类型
+		bytes[4] = type;
+		
+		//写入body长度
+		final byte[] bodyLengthBytes = Utils.int2Byte(dataLength);
+		bytes[5] = bodyLengthBytes[1];
+		bytes[6] = bodyLengthBytes[2];
+		bytes[7] = bodyLengthBytes[3];
+		
+		
+		
+		return bytes;
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package cn.yuncore.flv;
 
 import cn.yuncore.flv.FLVTagBody;
-import cn.yuncore.Utils;
+import cn.yuncore.util.Utils;
 
 /**
  * 视频tagbody
