@@ -8,6 +8,7 @@ package cn.yuncore.flv;
  */
 public class FLVTagBody {
 
+	
 	/**
 	 * 每一个tag的数据
 	 */

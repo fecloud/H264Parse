@@ -4,10 +4,35 @@ import cn.yuncore.util.Utils;
 
 /**
  * tag header
+ * 
  * @author Administrator
- *
+ * 
  */
 public class FLVTagHeader {
+
+	/**
+	 * 内容类型
+	 * @author 欧阳丰
+	 *
+	 */
+	public interface Type {
+
+		/**
+		 * 音频（0x8）
+		 */
+		byte AUDIO = 0x8;
+
+		/**
+		 * 视频（0x9）
+		 */
+		byte VIDEO = 0x9;
+
+		/**
+		 * 脚本（0x12）
+		 */
+		byte SCRIPT = 0x12;
+
+	}
 
 	/**
 	 * 1到4个字节为上一个tag的总长度
@@ -86,41 +111,56 @@ public class FLVTagHeader {
 	public void setDataPostion(long dataPostion) {
 		this.dataPostion = dataPostion;
 	}
-	
+
 	/**
 	 * tag头二进制数据
+	 * 
 	 * @return
 	 */
-	public byte[] toBytes(){
-		final byte [] bytes = new byte[15];
-		
-		//写入上一个tag的大小
-		final byte [] previousTagSizeBytes = Utils.int2Byte(previousTagSize);
+	public byte[] toBytes() {
+		final byte[] bytes = new byte[15];
+
+		// 写入上一个tag的大小
+		final byte[] previousTagSizeBytes = Utils.int2Byte(previousTagSize);
 		bytes[0] = previousTagSizeBytes[0];
 		bytes[1] = previousTagSizeBytes[1];
 		bytes[2] = previousTagSizeBytes[2];
 		bytes[3] = previousTagSizeBytes[3];
-		
-		//写入类型
+
+		// 写入类型
 		bytes[4] = type;
-		
-		//写入body长度
+
+		// 写入body长度
 		final byte[] bodyLengthBytes = Utils.int2Byte(dataLength);
 		bytes[5] = bodyLengthBytes[1];
 		bytes[6] = bodyLengthBytes[2];
 		bytes[7] = bodyLengthBytes[3];
-		
-		
-		
+
+		final byte[] timestampBytes = Utils.int2Byte(timestamp);
+		if (timestamp >= 0xFFFFFFFF) {
+			bytes[8] = timestampBytes[0];
+			bytes[9] = timestampBytes[1];
+			bytes[10] = timestampBytes[2];
+			bytes[11] = timestampBytes[3];
+		} else {
+			bytes[8] = timestampBytes[1];
+			bytes[9] = timestampBytes[2];
+			bytes[10] = timestampBytes[3];
+		}
+		final byte[] streamidBytes = Utils.int2Byte(streamid);
+		bytes[12] = streamidBytes[1];
+		bytes[13] = streamidBytes[2];
+		bytes[14] = streamidBytes[3];
+
 		return bytes;
 	}
 
 	@Override
 	public String toString() {
-		return "FLVHeader [previousTagSize=" + previousTagSize + ", type=" + Utils.getTagType(type)
-				+ ", dataLength=" + dataLength + ", timestamp=" + timestamp
-				+ ", streamid=" + streamid + ", dataPostion=" + dataPostion
-				+ "]";
+		return "FLVHeader [previousTagSize=" + previousTagSize + ", type="
+				+ Utils.getTagType(type) + ", dataLength=" + dataLength
+				+ ", timestamp=" + timestamp + ", streamid=" + streamid
+				+ ", dataPostion=" + dataPostion + "]";
 	}
 
 }

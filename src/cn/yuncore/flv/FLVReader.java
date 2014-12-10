@@ -177,8 +177,8 @@ public class FLVReader {
 		if (flvVideoTagBody.getData() != null
 				&& flvVideoTagBody.getData().length > 0) {
 			final byte video = flvVideoTagBody.getData()[0];
-			flvVideoTagBody.setFrameType((0xF0 & video) >> 4);
-			flvVideoTagBody.setCodec(0x0F & video);
+			flvVideoTagBody.setFrameType((byte) ((0xF0 & video) >> 4));
+			flvVideoTagBody.setCodec((byte) (0x0F & video));
 		}
 
 	}

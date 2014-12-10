@@ -24,9 +24,6 @@ public class H264Parse {
 		}
 
 		H264Reader h264Reader = new H264Reader(file);
-		System.out.println(String.format("[name:%s len:%s %sKB]",
-				file.getName(), file.length(), file.length() / 1024));
-		System.out.println();
 
 		H264NALU h264nalu = null;
 		int i = 0;

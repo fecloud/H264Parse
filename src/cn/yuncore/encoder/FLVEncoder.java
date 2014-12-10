@@ -10,7 +10,7 @@ import cn.yuncore.util.Log;
 public class FLVEncoder {
 
 	static final String TAG = "FLVEncoder";
-	
+
 	private MediaInputStream in;
 
 	private MediaOutputStream out;
@@ -30,8 +30,7 @@ public class FLVEncoder {
 	 * @param pps
 	 * @throws IOException
 	 */
-	private void encoderSPSPPS(byte[] sps, byte[] pps) throws IOException {
-		
+	protected void encoderSPSPPS(byte[] sps, byte[] pps) throws IOException {
 		Log.d(TAG, "encoderSPSPPS");
 		temp.reset();
 		final byte[] avc = new byte[5];
@@ -55,12 +54,32 @@ public class FLVEncoder {
 		temp.write(pps);
 
 		// 成功写入一帧
-		out.write(temp.toByteArray());
+		write(temp.toByteArray());
+	}
+
+	/**
+	 * 成功写入一帧
+	 * 
+	 * @param bytes
+	 * @throws IOException
+	 */
+	protected void write(byte[] bytes) throws IOException {
+		out.write(bytes);
 		out.flush();
 	}
 
 	/**
+	 * 编码普通帧
+	 * 
+	 * @param bytes
+	 */
+	protected void encoderData(byte[] bytes) {
+
+	}
+
+	/**
 	 * 启动编码
+	 * 
 	 * @throws IOException
 	 */
 	public void encoder() throws IOException {
