@@ -128,57 +128,21 @@ public class FLVReader {
 
 				if (tag.getHeader().getType() == 0x8) {
 					final FLVAudioTagBody audioTagBody = new FLVAudioTagBody();
-					audioTagBody.setData(bs);
-					paserAudioBody(audioTagBody);
+					audioTagBody.decoder(bs);
 					body = audioTagBody;
 				} else if (tag.getHeader().getType() == 0x9) {
 					final FLVVideoTagBody flvVideoTagBody = new FLVVideoTagBody();
-					flvVideoTagBody.setData(bs);
-					paserVideoBody(flvVideoTagBody);
+					flvVideoTagBody.decoder(bs);
 					body = flvVideoTagBody;
 				} else if (tag.getHeader().getType() == 0x12) {
 					final FLVScriptTagBody flvScriptTagBody = new FLVScriptTagBody();
-					flvScriptTagBody.setData(bs);
+					flvScriptTagBody.decoder(bs);
 					body = flvScriptTagBody;
 				}
 
 				tag.setBody(body);
 			}
 
-		}
-
-	}
-
-	/**
-	 * 解析音频数据信息
-	 * 
-	 * @param flvAudioTagBody
-	 */
-	private void paserAudioBody(FLVAudioTagBody flvAudioTagBody) {
-
-		if (flvAudioTagBody.getData() != null
-				&& flvAudioTagBody.getData().length > 0) {
-			final byte audio = flvAudioTagBody.getData()[0];
-			flvAudioTagBody.setFormat((0xF0 & audio) >> 4);
-			flvAudioTagBody.setSamplerate((0x0C & audio) >> 2);
-			flvAudioTagBody.setSnd((0x2 & audio) >> 1);
-			flvAudioTagBody.setSndType(0x1 & audio);
-		}
-
-	}
-
-	/**
-	 * 解析视频数据信息
-	 * 
-	 * @param flvVideoTagBody
-	 */
-	private void paserVideoBody(FLVVideoTagBody flvVideoTagBody) {
-
-		if (flvVideoTagBody.getData() != null
-				&& flvVideoTagBody.getData().length > 0) {
-			final byte video = flvVideoTagBody.getData()[0];
-			flvVideoTagBody.setFrameType((byte) ((0xF0 & video) >> 4));
-			flvVideoTagBody.setCodec((byte) (0x0F & video));
 		}
 
 	}

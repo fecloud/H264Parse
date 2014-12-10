@@ -42,7 +42,7 @@ public class FLVOutPutStream implements MediaOutputStream {
 		final FLVTag flvTag = new FLVTag();
 		final FLVTagHeader header = new FLVTagHeader();
 		final FLVVideoTagBody tagBody = new FLVVideoTagBody();
-		tagBody.setData(bytes);
+		tagBody.decoder(bytes);
 		header.setDataLength(bytes.length);
 		if (null == tag) {
 			header.setPreviousTagSize(0);

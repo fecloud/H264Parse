@@ -38,10 +38,7 @@ public class FlvParse {
 				i++;
 				System.out.println("[index:" + i + "] " + temp + "\r\n");
 
-				if (temp.getBody() != null && temp.getBody().getData() != null) {
-					System.out.println(Utils.formatBytes(temp.getBody()
-							.getData()));
-				}
+				System.out.println(Utils.formatBytes(temp.getBody().encoder()));
 
 			}
 

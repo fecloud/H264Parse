@@ -1,5 +1,8 @@
 package cn.yuncore.flv;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 import cn.yuncore.flv.FLVTagBody;
 import cn.yuncore.util.Utils;
 
@@ -68,7 +71,7 @@ public class FLVVideoTagBody extends FLVTagBody {
 		 * Screen video version 2
 		 */
 		byte SCREEN_VIDEO_VERSION_2 = 0x6;
-		
+
 		/**
 		 * AVC (h.264)
 		 */
@@ -122,6 +125,28 @@ public class FLVVideoTagBody extends FLVTagBody {
 	public String toString() {
 		return "FLVVideoTagBody [frameType=" + Utils.getVideoFrame(frameType)
 				+ ", codec=" + Utils.getVideoCodecName(codec) + "]";
+	}
+
+	@Override
+	public void decoder(byte[] data) throws CodingException {
+		if (null == data) {
+			throw new CodingException("decoder data is empty!");
+		}
+		final byte video = data[0];
+		setFrameType((byte) ((0xF0 & video) >> 4));
+		setCodec((byte) (0x0F & video));
+		this.data = Arrays.copyOfRange(data, 1, data.length);
+	}
+
+	@Override
+	public byte[] encoder() throws CodingException {
+		final ByteBuffer buffer = ByteBuffer.allocate(1 + data.length);
+		byte first = frameType;
+		first <<= 4;
+		first |= codec;
+		buffer.put(first);
+		buffer.put(data);
+		return buffer.array();
 	}
 
 }

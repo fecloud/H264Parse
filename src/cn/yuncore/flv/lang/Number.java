@@ -14,7 +14,7 @@ import cn.yuncore.flv.CodingException;
  * @author 欧阳丰
  * 
  */
-public class Number implements FLVDataType {
+public class Number implements FLVData {
 
 	private long number;
 

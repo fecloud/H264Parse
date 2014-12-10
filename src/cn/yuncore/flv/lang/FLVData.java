@@ -12,7 +12,7 @@ import cn.yuncore.flv.CodingException;
  * @author 欧阳丰
  * 
  */
-public interface FLVDataType {
+public interface FLVData {
 
 	
 	/**

@@ -43,7 +43,7 @@ public class FLVTag {
 	public byte[] toBytes() throws IOException {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(header.toBytes());
-		out.write(body.getData());
+		out.write(body.encoder());
 		return out.toByteArray();
 	}
 

@@ -6,20 +6,27 @@ package cn.yuncore.flv;
  * @author Administrator
  * 
  */
-public class FLVTagBody {
+public abstract class FLVTagBody {
 
 	
 	/**
 	 * 每一个tag的数据
 	 */
-	private byte[] data;
-
-	public byte[] getData() {
-		return data;
-	}
-
-	public void setData(byte[] data) {
-		this.data = data;
-	}
+	protected byte[] data;
+	
+	/**
+	 * 解码数据
+	 * @param data
+	 * @throws CodingException
+	 */
+	public abstract void decoder(byte[] data) throws CodingException;
+	
+	/**
+	 * 编码数据
+	 * @return
+	 * @throws CodingException
+	 */
+	public abstract byte[] encoder() throws CodingException;
+	
 
 }

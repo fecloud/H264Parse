@@ -85,4 +85,23 @@ public class FLVAudioTagBody extends FLVTagBody {
 				+ Utils.getAudioSndType(sndType) + "]";
 	}
 
+	@Override
+	public void decoder(byte[] data) throws CodingException {
+		if(null == data){
+			throw new CodingException("decoder data is empty!");
+		}
+		final byte audio = data[0];
+		setFormat((0xF0 & audio) >> 4);
+		setSamplerate((0x0C & audio) >> 2);
+		setSnd((0x2 & audio) >> 1);
+		setSndType(0x1 & audio);
+		
+	}
+
+	@Override
+	public byte[] encoder() throws CodingException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

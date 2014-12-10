@@ -1,7 +1,6 @@
 /**
  * ECMA_Array.java
  * 2014-12-10
- * 深圳市五月高球信息咨询有限公司
  * 欧阳丰
  */
 package cn.yuncore.flv.lang;
@@ -17,13 +16,13 @@ import cn.yuncore.flv.CodingException;
  * @author 欧阳丰
  * 
  */
-public class ECMA_Array implements FLVDataType {
+public class ECMA_Array implements FLVData {
 
 	private List<java.lang.String> names = new ArrayList<java.lang.String>();
 
-	private List<FLVDataType> values = new ArrayList<>();
+	private List<FLVData> values = new ArrayList<>();
 
-	public void put(java.lang.String name, FLVDataType data) {
+	public void put(java.lang.String name, FLVData data) {
 		names.add(name);
 		values.add(data);
 	}
@@ -39,6 +38,24 @@ public class ECMA_Array implements FLVDataType {
 
 	}
 
+	public void decoder(ByteBuffer buffer, int size) throws CodingException {
+		char nameLength = 0;
+		byte[] bytes = null;
+		try {
+			for (int i = 0; i < size; i++) {
+				nameLength = buffer.getChar();
+				bytes = new byte[nameLength];
+				buffer.get(bytes);
+				names.add(new java.lang.String(bytes, "UTF-8"));
+				
+			}
+		} catch (Exception e) {
+			throw new CodingException(e);
+		}
+
+	}
+
+	
 	/**
 	 * 编码key
 	 * 
@@ -66,7 +83,7 @@ public class ECMA_Array implements FLVDataType {
 			final ByteBuffer buffer = ByteBuffer.allocate(1024);
 			buffer.put(ECMA_ARRAY);
 			buffer.putInt(names.size());
-			FLVDataType value = null;
+			FLVData value = null;
 			java.lang.String name = null;
 			for (int i = 0; i < names.size();) {
 				name = names.get(i);

@@ -14,7 +14,7 @@ import cn.yuncore.flv.CodingException;
  * @author 欧阳丰
  * 
  */
-public class String implements FLVDataType {
+public class String implements FLVData {
 
 	private java.lang.String string;
 
