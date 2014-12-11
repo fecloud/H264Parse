@@ -127,17 +127,28 @@ public class FLVVideoTagBody extends FLVTagBody {
 				+ ", codec=" + Utils.getVideoCodecName(codec) + "]";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.FLVTagBody#decoder(byte[])
+	 */
 	@Override
-	public void decoder(byte[] data) throws CodingException {
-		if (null == data) {
+	public void decoder(byte[] bytes) throws CodingException {
+		if (null == bytes) {
 			throw new CodingException("decoder data is empty!");
 		}
-		final byte video = data[0];
+
+		final byte video = bytes[0];
 		setFrameType((byte) ((0xF0 & video) >> 4));
 		setCodec((byte) (0x0F & video));
-		this.data = Arrays.copyOfRange(data, 1, data.length);
+		this.data = Arrays.copyOfRange(bytes, 1, bytes.length);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.FLVTagBody#encoder()
+	 */
 	@Override
 	public byte[] encoder() throws CodingException {
 		final ByteBuffer buffer = ByteBuffer.allocate(1 + data.length);
@@ -147,14 +158,6 @@ public class FLVVideoTagBody extends FLVTagBody {
 		buffer.put(first);
 		buffer.put(data);
 		return buffer.array();
-	}
-
-	/* (non-Javadoc)
-	 * @see cn.yuncore.flv.lang.FLVData#getType()
-	 */
-	@Override
-	public byte getType() {
-		return 0;
 	}
 
 }

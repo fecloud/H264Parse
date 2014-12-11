@@ -1,5 +1,8 @@
 package cn.yuncore.flv;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 import cn.yuncore.util.Utils;
 
 public class FLVAudioTagBody extends FLVTagBody {
@@ -17,7 +20,7 @@ public class FLVAudioTagBody extends FLVTagBody {
 	 * 
 	 * ·10 -- AAC
 	 */
-	private int format;
+	private byte format;
 
 	/**
 	 * ·0 -- 5.5KHz
@@ -28,51 +31,51 @@ public class FLVAudioTagBody extends FLVTagBody {
 	 * 
 	 * ·3 -- 44kHz
 	 */
-	private int samplerate;
+	private byte samplerate;
 
 	/**
 	 * ·0 -- snd8Bit
 	 * 
 	 * ·1 -- snd16Bit
 	 */
-	private int snd;
+	private byte snd;
 
 	/**
 	 * 0 -- sndMomo
 	 * 
 	 * ·1 -- sndStereo
 	 */
-	private int sndType;
+	private byte sndType;
 
-	public int getFormat() {
+	public byte getFormat() {
 		return format;
 	}
 
-	public void setFormat(int format) {
+	public void setFormat(byte format) {
 		this.format = format;
 	}
 
-	public int getSamplerate() {
+	public byte getSamplerate() {
 		return samplerate;
 	}
 
-	public void setSamplerate(int samplerate) {
+	public void setSamplerate(byte samplerate) {
 		this.samplerate = samplerate;
 	}
 
-	public int getSnd() {
+	public byte getSnd() {
 		return snd;
 	}
 
-	public void setSnd(int snd) {
+	public void setSnd(byte snd) {
 		this.snd = snd;
 	}
 
-	public int getSndType() {
+	public byte getSndType() {
 		return sndType;
 	}
 
-	public void setSndType(int sndType) {
+	public void setSndType(byte sndType) {
 		this.sndType = sndType;
 	}
 
@@ -84,38 +87,40 @@ public class FLVAudioTagBody extends FLVTagBody {
 				+ Utils.getAudioSndType(sndType) + "]";
 	}
 
-	/* (non-Javadoc)
-	 * @see cn.yuncore.flv.lang.FLVData#getType()
-	 */
-	@Override
-	public byte getType() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see cn.yuncore.flv.lang.FLVData#decoder(byte[])
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.FLVTagBody#decoder(byte[])
 	 */
 	@Override
 	public void decoder(byte[] bytes) throws CodingException {
-		if(null == data){
+		if (null == data) {
 			throw new CodingException("decoder data is empty!");
 		}
 		final byte audio = data[0];
-		setFormat((0xF0 & audio) >> 4);
-		setSamplerate((0x0C & audio) >> 2);
-		setSnd((0x2 & audio) >> 1);
-		setSndType(0x1 & audio);
+		setFormat((byte) ((0xF0 & audio) >> 4));
+		setSamplerate((byte) ((0x0C & audio) >> 2));
+		setSnd((byte) ((0x2 & audio) >> 1));
+		setSndType((byte) (0x1 & audio));
+		this.data = Arrays.copyOfRange(data, 1, data.length);
 	}
 
-	/* (non-Javadoc)
-	 * @see cn.yuncore.flv.lang.FLVData#encoder()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.FLVTagBody#encoder()
 	 */
 	@Override
 	public byte[] encoder() throws CodingException {
-		// TODO Auto-generated method stub
-		return null;
+		final ByteBuffer buffer = ByteBuffer.allocate(1 + data.length);
+		byte first = format;
+		first <<= 4;
+		first |= (samplerate << 2);
+		first |= (snd << 1);
+		first |= sndType;
+		buffer.put(first);
+		buffer.put(data);
+		return buffer.array();
 	}
-
 
 }

@@ -6,7 +6,7 @@ import java.io.IOException;
 import cn.yuncore.util.Utils;
 
 /**
- * 锟斤拷取FLV锟侥硷拷tag
+ * 解析flv文件
  * 
  * @author Administrator
  * 

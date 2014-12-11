@@ -1,20 +1,18 @@
 /**
  * FLVDataType.java
  * 2014-12-10
- * 深圳市五月高球信息咨询有限公司
- * 欧阳丰
  */
 package cn.yuncore.flv.lang;
+
+import java.nio.ByteBuffer;
 
 import cn.yuncore.flv.CodingException;
 
 /**
- * @author 欧阳丰
  * 
  */
 public interface FLVData {
 
-	
 	/**
 	 * (Encoded as IEEE 64-bit double-precision floating point number)
 	 */
@@ -72,25 +70,26 @@ public interface FLVData {
 	byte TYPED_OBJECT = 0x10;
 
 	byte SWITCH_TO_AMF3 = 0x11;
-	
+
 	/**
 	 * 数据类型
+	 * 
 	 * @return
 	 */
 	byte getType();
-	
+
 	/**
 	 * 解码
 	 * 
 	 * @param bytes
 	 */
-	void decoder(byte[] bytes) throws CodingException;
+	void decoder(ByteBuffer buffer) throws CodingException;
 
 	/**
 	 * 编码
 	 * 
 	 * @return
 	 */
-	byte[] encoder()throws CodingException;
+	void encoder(ByteBuffer buffer) throws CodingException;
 
 }

@@ -1,8 +1,6 @@
 /**
  * Number.java
  * 2014-12-10
- * 深圳市五月高球信息咨询有限公司
- * 欧阳丰
  */
 package cn.yuncore.flv.lang;
 
@@ -11,12 +9,11 @@ import java.nio.ByteBuffer;
 import cn.yuncore.flv.CodingException;
 
 /**
- * @author 欧阳丰
  * 
  */
 public class Number implements FLVData {
 
-	private long number;
+	private double number;
 
 	public Number() {
 	}
@@ -24,7 +21,7 @@ public class Number implements FLVData {
 	/**
 	 * @param number
 	 */
-	public Number(long number) {
+	public Number(double number) {
 		super();
 		this.number = number;
 	}
@@ -32,7 +29,7 @@ public class Number implements FLVData {
 	/**
 	 * @return the number
 	 */
-	public long getNumber() {
+	public double getNumber() {
 		return number;
 	}
 
@@ -47,35 +44,42 @@ public class Number implements FLVData {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see cn.yuncore.flv.lang.FLVDataType#decoder(byte[])
-	 */
-	@Override
-	public void decoder(byte[] bytes) throws CodingException {
-		final ByteBuffer buffer = ByteBuffer.wrap(bytes);
-		this.number = buffer.getLong();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cn.yuncore.flv.lang.FLVDataType#encoder()
-	 */
-	@Override
-	public byte[] encoder() throws CodingException {
-		final ByteBuffer buffer = ByteBuffer.allocate(9);
-		buffer.put(NUMBER);
-		buffer.putLong(number);
-		return buffer.array();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see cn.yuncore.flv.lang.FLVDataType#getType()
 	 */
 	@Override
 	public byte getType() {
 		return NUMBER;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.lang.FLVData#decoder(java.nio.ByteBuffer)
+	 */
+	@Override
+	public void decoder(ByteBuffer buffer) throws CodingException {
+		this.number = buffer.getDouble();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.lang.FLVData#encoder(java.nio.ByteBuffer)
+	 */
+	@Override
+	public void encoder(ByteBuffer buffer) throws CodingException {
+		buffer.put(NUMBER);
+		buffer.putDouble(number);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public java.lang.String toString() {
+		return "Number [number=" + number + "]";
 	}
 
 }

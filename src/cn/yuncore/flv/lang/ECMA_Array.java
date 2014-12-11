@@ -1,7 +1,6 @@
 /**
  * ECMA_Array.java
  * 2014-12-10
- * 欧阳丰
  */
 package cn.yuncore.flv.lang;
 
@@ -13,10 +12,9 @@ import java.util.List;
 import cn.yuncore.flv.CodingException;
 
 /**
- * @author 欧阳丰
  * 
  */
-public class ECMA_Array implements FLVData {
+public class ECMA_Array extends Struct implements FLVData {
 
 	private List<java.lang.String> names = new ArrayList<java.lang.String>();
 
@@ -27,35 +25,6 @@ public class ECMA_Array implements FLVData {
 		values.add(data);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cn.yuncore.flv.lang.FLVDataType#decoder(byte[])
-	 */
-	@Override
-	public void decoder(byte[] bytes) throws CodingException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void decoder(ByteBuffer buffer, int size) throws CodingException {
-		char nameLength = 0;
-		byte[] bytes = null;
-		try {
-			for (int i = 0; i < size; i++) {
-				nameLength = buffer.getChar();
-				bytes = new byte[nameLength];
-				buffer.get(bytes);
-				names.add(new java.lang.String(bytes, "UTF-8"));
-				
-			}
-		} catch (Exception e) {
-			throw new CodingException(e);
-		}
-
-	}
-
-	
 	/**
 	 * 编码key
 	 * 
@@ -75,31 +44,38 @@ public class ECMA_Array implements FLVData {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see cn.yuncore.flv.lang.FLVDataType#encoder()
+	 * @see cn.yuncore.flv.lang.FLVDataType#getType()
 	 */
 	@Override
-	public byte[] encoder() throws CodingException {
+	public byte getType() {
+		return ECMA_ARRAY;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.lang.FLVData#decoder(java.nio.ByteBuffer)
+	 */
+	@Override
+	public void decoder(ByteBuffer buffer) throws CodingException {
+		byte[] tmp = null;
 		try {
-			final ByteBuffer buffer = ByteBuffer.allocate(1024);
-			buffer.put(ECMA_ARRAY);
-			buffer.putInt(names.size());
-			FLVData value = null;
-			java.lang.String name = null;
-			for (int i = 0; i < names.size();) {
-				name = names.get(i);
-				value = values.get(i);
-				if (value != null) {
-					buffer.put(encoderName(name));
-					buffer.put(value.encoder());
+			char nameLength = 0;
+			int size = buffer.getInt();
+			for (int i = 0; i < size && buffer.hasRemaining(); i++) {
+				nameLength = buffer.getChar();
+				tmp = new byte[nameLength];
+				if (buffer.hasRemaining()) {
+					buffer.get(tmp);
+					this.names.add(new java.lang.String(tmp, "UTF-8"));
+				}
+				if (buffer.hasRemaining()) {
+					this.values.add(parseFLVData(buffer));
 				}
 			}
-			buffer.put((byte) 0x0);
-			buffer.put((byte) 0x0);
-			buffer.put(OBJECT_END);
-			buffer.flip();
-			final byte[] bytes = new byte[buffer.limit()];
-			buffer.get(bytes);
-			return bytes;
+			if (buffer.hasRemaining()) {
+				buffer.position(buffer.position() + 3);
+			}
 		} catch (Exception e) {
 			throw new CodingException(e);
 		}
@@ -108,11 +84,51 @@ public class ECMA_Array implements FLVData {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see cn.yuncore.flv.lang.FLVDataType#getType()
+	 * @see cn.yuncore.flv.lang.FLVData#encoder(java.nio.ByteBuffer)
 	 */
 	@Override
-	public byte getType() {
-		return ECMA_ARRAY;
+	public void encoder(ByteBuffer buffer) throws CodingException {
+		try {
+			buffer.put(ECMA_ARRAY);
+			buffer.putInt(names.size());
+			FLVData value = null;
+			java.lang.String name = null;
+			for (int i = 0; i < names.size(); i++) {
+				name = names.get(i);
+				value = values.get(i);
+				if (value != null) {
+					buffer.put(encoderName(name));
+					value.encoder(buffer);
+				}
+			}
+			buffer.put((byte) 0x0);
+			buffer.put((byte) 0x0);
+			buffer.put(OBJECT_END);
+		} catch (Exception e) {
+			throw new CodingException(e);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.lang.Struct#toString()
+	 */
+	@Override
+	public java.lang.String toString() {
+		final StringBuffer buffer = new StringBuffer();
+		buffer.append("ECMA_Array [ ");
+		java.lang.String name = null;
+		FLVData value = null;
+		for (int i = 0; i < names.size(); i++) {
+			name = names.get(i);
+			value = values.get(i);
+			if (value != null) {
+				buffer.append(name).append(":").append(value);
+			}
+		}
+		buffer.append(" ]");
+		return buffer.toString();
 	}
 
 }

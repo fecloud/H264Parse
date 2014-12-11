@@ -122,24 +122,18 @@ public class FLVReader {
 		if (tag != null && tag.getHeader() != null
 				&& tag.getHeader().getDataLength() > 0
 				&& tag.getHeader().getDataPostion() > -1) {
-			final byte[] bs = new byte[tag.getHeader().getDataLength()];
-			if ((in.read(bs)) == bs.length) {
+			final byte[] bytes = new byte[tag.getHeader().getDataLength()];
+			if ((in.read(bytes)) == bytes.length) {
 				FLVTagBody body = null;
 
 				if (tag.getHeader().getType() == 0x8) {
-					final FLVAudioTagBody audioTagBody = new FLVAudioTagBody();
-					audioTagBody.decoder(bs);
-					body = audioTagBody;
+					body = new FLVAudioTagBody();
 				} else if (tag.getHeader().getType() == 0x9) {
-					final FLVVideoTagBody flvVideoTagBody = new FLVVideoTagBody();
-					flvVideoTagBody.decoder(bs);
-					body = flvVideoTagBody;
+					body = new FLVVideoTagBody();
 				} else if (tag.getHeader().getType() == 0x12) {
-					final FLVScriptTagBody flvScriptTagBody = new FLVScriptTagBody();
-					flvScriptTagBody.decoder(bs);
-					body = flvScriptTagBody;
+					body = new FLVScriptTagBody();
 				}
-
+				body.decoder(bytes);
 				tag.setBody(body);
 			}
 

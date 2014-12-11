@@ -1,15 +1,12 @@
 /**
  * EncodingEncodingException.java
  * 2014-12-10
- * 深圳市五月高球信息咨询有限公司
- * 欧阳丰
  */
 package cn.yuncore.flv;
 
 import java.io.IOException;
 
 /**
- * @author 欧阳丰
  * 
  */
 public class CodingException extends IOException {
