@@ -1,11 +1,16 @@
 package cn.yuncore.encoder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
+import cn.yuncore.flv.FLVScriptTagBody;
+import cn.yuncore.flv.lang.ECMA_Array;
+import cn.yuncore.flv.lang.Number;
+import cn.yuncore.flv.lang.Struct;
 import cn.yuncore.io.MediaInputStream;
 import cn.yuncore.io.MediaOutputStream;
 import cn.yuncore.util.Log;
+import cn.yuncore.util.Utils;
 
 public class FLVEncoder {
 
@@ -15,12 +20,36 @@ public class FLVEncoder {
 
 	private MediaOutputStream out;
 
-	private ByteArrayOutputStream temp = new ByteArrayOutputStream();
+	private ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024 * 2);
 
 	public FLVEncoder(MediaInputStream in, MediaOutputStream out) {
 		super();
 		this.in = in;
 		this.out = out;
+	}
+
+	/**
+	 * 解析视频宽高帧率
+	 * 
+	 * @param sps
+	 */
+	protected void encoderOnMetaData(byte[] sps) throws EncoderException {
+		try {
+			final Struct struct = new Struct();
+			struct.put("@setDataFrame");
+			struct.put("onMetaData");
+			ECMA_Array array = new ECMA_Array();
+			array.put("width", new Number(320));
+			array.put("height", new Number(240));
+			array.put("videodatarate", new Number(0));
+			array.put("framerate", new Number(15));
+			array.put("videocodecid", new Number(7));
+			array.put("encoder", new cn.yuncore.flv.lang.String("Lavf56.4.101"));
+			array.put("encoder", new Number(0));
+			write(struct.encoder());
+		} catch (Exception e) {
+			throw new EncoderException("encode onMetaData error", e);
+		}
 	}
 
 	/**
@@ -31,30 +60,42 @@ public class FLVEncoder {
 	 * @throws IOException
 	 */
 	protected void encoderSPSPPS(byte[] sps, byte[] pps) throws IOException {
+		encoderOnMetaData(sps);
+
 		Log.d(TAG, "encoderSPSPPS");
-		temp.reset();
-		final byte[] avc = new byte[5];
-		avc[0] = 0x17;
+		buffer.clear();
 		// 写入avc头
-		temp.write(avc);
+		buffer.put((byte) 0x17);
+		buffer.put((byte) 0x0);
+		buffer.put((byte) 0x0);
+		buffer.put((byte) 0x0);
+		buffer.put((byte) 0x0);
 
-		final byte[] avc_config = new byte[7];
-		avc_config[0] = 0x1;
-		avc_config[1] = sps[1];
-		avc_config[2] = sps[2];
-		avc_config[3] = sps[3];
 		// 写入AVC file forma
-		temp.write(avc_config);
+		buffer.put((byte) 0x1);
+		buffer.put(sps[1]);
+		buffer.put(sps[2]);
+		buffer.put(sps[3]);
 
-		// 写入PPS的长度
-		final int pps_length = pps.length;
-		temp.write(new byte[] { (byte) ((0xFF00 & pps_length) >> 8),
-				(byte) (0xFF & pps_length) });
-		// 写入PPS
-		temp.write(pps);
+		// lengthSizeMinusOne
+		buffer.put((byte) 0xFF);
 
-		// 成功写入一帧
-		write(temp.toByteArray());
+		buffer.put((byte) 0xE1);
+		// sps nums and data
+		buffer.putChar((char) sps.length);
+		buffer.put(sps);
+
+		// pps num and data
+		buffer.putChar((char) pps.length);
+		buffer.put(pps);
+
+		buffer.flip();
+
+		byte[] bytes = new byte[buffer.limit()];
+		buffer.get(bytes);
+		Log.d(TAG, Utils.formatBytes(bytes));
+
+		write(bytes);
 	}
 
 	/**
