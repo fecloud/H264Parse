@@ -47,26 +47,9 @@ public class FLVScriptTagBody extends FLVTagBody {
 		}
 	}
 
-	@Override
-	public void decoder(byte[] data) throws CodingException {
-		final ByteBuffer buffer = ByteBuffer.allocate(data.length);
-		buffer.put(data);
-		buffer.flip();
-		while (buffer.hasRemaining()) {
-			switch (buffer.get()) {
-			case FLVData.STRING:
-				objects.add(parseString(buffer));
-				break;
-			case FLVData.ECMA_ARRAY:
-				objects.add(parseECMAArray(buffer));
-			default:
-				break;
-			}
-		}
-	}
-
 	/**
 	 * 解析数组类型
+	 * 
 	 * @param buffer
 	 * @return
 	 * @throws CodingException
@@ -79,6 +62,7 @@ public class FLVScriptTagBody extends FLVTagBody {
 
 	/**
 	 * 解析String类型
+	 * 
 	 * @param buffer
 	 * @return
 	 * @throws CodingException
@@ -97,6 +81,29 @@ public class FLVScriptTagBody extends FLVTagBody {
 		return string;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.lang.FLVData#decoder(byte[])
+	 */
+	@Override
+	public void decoder(byte[] bytes) throws CodingException {
+		final ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+		buffer.put(bytes);
+		buffer.flip();
+		while (buffer.hasRemaining()) {
+			switch (buffer.get()) {
+			case FLVData.STRING:
+				objects.add(parseString(buffer));
+				break;
+			case FLVData.ECMA_ARRAY:
+				objects.add(parseECMAArray(buffer));
+			default:
+				break;
+			}
+		}
+	}
+
 	@Override
 	public byte[] encoder() throws CodingException {
 		// TODO Auto-generated method stub
@@ -109,6 +116,16 @@ public class FLVScriptTagBody extends FLVTagBody {
 
 	public void setObjects(List<FLVData> objects) {
 		this.objects = objects;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see cn.yuncore.flv.lang.FLVData#getType()
+	 */
+	@Override
+	public byte getType() {
+		return 0;
 	}
 
 }

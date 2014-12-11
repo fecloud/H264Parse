@@ -149,4 +149,12 @@ public class FLVVideoTagBody extends FLVTagBody {
 		return buffer.array();
 	}
 
+	/* (non-Javadoc)
+	 * @see cn.yuncore.flv.lang.FLVData#getType()
+	 */
+	@Override
+	public byte getType() {
+		return 0;
+	}
+
 }
