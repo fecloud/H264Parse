@@ -84,8 +84,10 @@ public class FLVEncoder {
 		// sps nums and data
 		buffer.putChar((char) sps.length);
 		buffer.put(sps);
-
-		// pps num and data
+		
+		// pps num 
+		buffer.put((byte) 0x1);
+		//and data
 		buffer.putChar((char) pps.length);
 		buffer.put(pps);
 
