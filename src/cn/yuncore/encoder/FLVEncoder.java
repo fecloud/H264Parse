@@ -29,7 +29,11 @@ public class FLVEncoder {
 	private byte[] sps;
 	private byte[] pps;
 
+	private byte[] sei;
+	private byte[] idr;
+
 	private boolean findSPSPPS = false;
+	private boolean findSEIIDR = false;
 
 	private ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024 * 2);
 
@@ -73,7 +77,7 @@ public class FLVEncoder {
 	 * @param pps
 	 * @throws IOException
 	 */
-	protected void encoderSPSPPS(byte[] sps, byte[] pps) throws IOException {
+	protected void encoderSPSPPS() throws IOException {
 		encoderOnMetaData(sps);
 
 		Log.d(TAG, "encoderSPSPPS");
@@ -104,21 +108,23 @@ public class FLVEncoder {
 		writeTag(FLVType.VIDEO, bytes);
 	}
 
-	protected void encodeSEI(byte[] bytes) throws IOException {
+	protected void encodeSEI() throws IOException {
 		buffer.clear();
 		buffer.put((byte) ((FrameType.KEYF_RAME << 4) | Codec.AVC_H264));
 		buffer.put((byte) AVC_PACKAGE).put((byte) 0x0).put((byte) 0x0)
 				.put((byte) 0x0);
-		//写入SPS信息
+		// 写入SPS信息
 		buffer.putInt(sps.length).put(sps);
-		
-		//写入PPS信息
+
+		// 写入PPS信息
 		buffer.putInt(pps.length).put(pps);
-		
-		buffer.putInt(bytes.length).put(bytes);
-		
+
+		buffer.putInt(sei.length).put(sei);
+
+		buffer.putInt(idr.length).put(idr);
+
 		buffer.flip();
-		
+
 		final byte[] bs = new byte[buffer.limit()];
 		buffer.get(bs);
 		writeTag(FLVType.VIDEO, bs);
@@ -170,7 +176,14 @@ public class FLVEncoder {
 		while (null != (tbyte = in.reader())) {
 			switch (tbyte[0] & 0x1F) {
 			case H264NALUType.SEI:
-				encodeSEI(tbyte);
+				sei = tbyte;
+				break;
+			case H264NALUType.IDR:
+				idr = tbyte;
+				if (sei != null && idr != null && !findSEIIDR) {
+					encodeSEI();
+					findSPSPPS = true;
+				}
 				break;
 			case H264NALUType.SPS:
 				sps = tbyte;
@@ -178,7 +191,7 @@ public class FLVEncoder {
 			case H264NALUType.PPS:
 				pps = tbyte;
 				if (sps != null && pps != null && !findSPSPPS) {
-					encoderSPSPPS(sps, pps);
+					encoderSPSPPS();
 					findSPSPPS = true;
 				}
 				break;

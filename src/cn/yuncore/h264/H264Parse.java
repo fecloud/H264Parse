@@ -29,14 +29,14 @@ public class H264Parse {
 		int i = 0;
 		while (null != (h264nalu = h264Reader.readerH264())
 				&& (line == -1 || line > i)) {
-			i++;
-			System.out.println("====================================================");
-			if (h264nalu.getType() == 5) {
+			//i++;
+			//System.out.println("====================================================");
+//			if (h264nalu.getType() == 5) {
 				// System.out.println("[index:" + i + "] " + h264nalu + "\r\n");
-			}
-			System.out.println(String.format("index:%s %s", i ,h264nalu));
+//			}
+			//System.out.println(String.format("index:%s %s", i ,h264nalu));
 //			if (h264nalu.getType() == 7 || h264nalu.getType() == 8) {
-				System.out.println(Utils.formatBytes(h264nalu.getData()));
+				//System.out.println(Utils.formatBytes(h264nalu.getData()));
 //			}
 
 		}

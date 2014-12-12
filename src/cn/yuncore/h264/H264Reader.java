@@ -12,7 +12,7 @@ public class H264Reader implements MediaInputStream {
 
 	private RandomAccessFile in;
 
-	private long index;
+	private volatile long current;
 
 	public H264Reader(File file) throws IOException {
 		super();
@@ -29,23 +29,22 @@ public class H264Reader implements MediaInputStream {
 
 	private long findNALU() throws IOException {
 		while (in.getFilePointer() < file.length()) {
-			if (in.readByte() == 0) {
-				final byte[] bs = new byte[3];
+			if (in.readByte() == 0x01) {
+				current = in.getFilePointer();
+				final byte[] bs = new byte[4];
+				in.seek(in.getFilePointer() - 4);
 				int len = in.read(bs);
-
-				if (len == 3) {
-					if (bs[2] == 0x1 && bs[0] == bs[1]) {
-						index = in.getFilePointer();
+				if (len == 4) {
+					if (bs[0] == 0 && bs[2] == 0 && bs[1] == 0) {
 						return in.getFilePointer() - 4;
-					} else if (bs[0] == 0 && bs[1] == 0x1) {
-						index = in.getFilePointer() - 1;
-						return in.getFilePointer() - 4;
+					} else if (bs[0] != 0 && bs[2] == 0 && bs[1] == 0) {
+						return in.getFilePointer() - 3;
 					}
 				}
 			}
 		}
-		index = file.length() - 1;
-		return file.length() - 1;
+		current = in.getFilePointer();
+		return current;
 	}
 
 	public void close() throws IOException {
@@ -63,21 +62,23 @@ public class H264Reader implements MediaInputStream {
 		H264NALU h264nalu = null;
 		long start = in.getFilePointer();
 		// 已到达文件尾
-		if (start == file.length() - 1) {
+		final long end = findNALU();
+		if (start == file.length()) {
 			return null;
 		}
-		long end = findNALU();
-		System.out.println(String.format("start:%s end:%s", start, end));
+		//System.out.println(String.format("start:%s end:%s", start, end));
 		final byte[] bs = new byte[(int) (end - start)];
 
 		in.seek(start);
 		int len = in.read(bs);
-		in.seek(end);
+
 		h264nalu = new H264NALU();
 		h264nalu.setData(bs);
-		if (h264nalu.getData() != null && h264nalu.getData().length == len)
+		if (h264nalu.getData() != null && h264nalu.getData().length == len) {
 			h264nalu.setType(0xFF & (0x1F & h264nalu.getData()[0]));
-		in.seek(index);
+		}
+
+		in.seek(current);
 		return h264nalu;
 
 	}
