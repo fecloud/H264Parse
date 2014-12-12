@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import cn.yuncore.flv.amf.FrameType;
 import cn.yuncore.io.MediaOutputStream;
 
 public class FLVOutPutStream implements MediaOutputStream {
@@ -12,6 +13,8 @@ public class FLVOutPutStream implements MediaOutputStream {
 	private FileOutputStream file;
 
 	private FLVTag tag;
+
+	private int time;
 
 	public FLVOutPutStream(File file) throws IOException {
 		this.file = new FileOutputStream(file);
@@ -38,10 +41,10 @@ public class FLVOutPutStream implements MediaOutputStream {
 	 * @param bytes
 	 * @throws IOException
 	 */
-	protected void writeTag(byte[] bytes) throws IOException {
+	public void writeTag(byte bodyType, byte[] bytes) throws IOException {
 		final FLVTag flvTag = new FLVTag();
 		final FLVTagHeader header = new FLVTagHeader();
-		final FLVVideoTagBody tagBody = new FLVVideoTagBody();
+		final FLVTagBody tagBody = getFlvTagBody(bodyType);
 		tagBody.decoder(bytes);
 		header.setDataLength(bytes.length);
 		if (null == tag) {
@@ -49,25 +52,48 @@ public class FLVOutPutStream implements MediaOutputStream {
 		} else {
 			header.setPreviousTagSize(tag.getLength());
 		}
-		header.setType((byte) 0x9);
+		header.setType(bodyType);
+
+		if (tagBody instanceof FLVVideoTagBody) {
+			final FLVVideoTagBody flvVideoTagBody = (FLVVideoTagBody) tagBody;
+			if (flvVideoTagBody.getFrameType() == FrameType.INNER_FRAME) {
+				header.setTimestamp(time);
+				time += 40;
+			}
+		}
 
 		flvTag.setHeader(header);
 		flvTag.setBody(tagBody);
-
-		file.write(flvTag.toBytes());
+		this.tag = flvTag;
+		file.write(flvTag.encoder());
 	}
 
-	/* (non-Javadoc)
+	protected FLVTagBody getFlvTagBody(byte type) {
+		switch (type) {
+		case FLVType.AUDIO:
+			return new FLVAudioTagBody();
+		case FLVType.VIDEO:
+			return new FLVVideoTagBody();
+		case FLVType.SCRIPT:
+			return new FLVScriptTagBody();
+		default:
+			break;
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see cn.yuncore.io.MediaOutputStream#write(byte[])
 	 */
 	@Override
 	public void write(byte[] bytes) throws IOException {
-		if (null != file) {
-			writeTag(bytes);
-		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see cn.yuncore.io.MediaOutputStream#flush()
 	 */
 	@Override
@@ -75,7 +101,9 @@ public class FLVOutPutStream implements MediaOutputStream {
 		file.flush();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see cn.yuncore.io.MediaOutputStream#close()
 	 */
 	@Override
@@ -86,7 +114,7 @@ public class FLVOutPutStream implements MediaOutputStream {
 	/**
 	 * 解析SPS 写入onMetaData
 	 */
-	protected void decoderSPS(byte [] bytes) {
+	protected void decoderSPS(byte[] bytes) {
 		final ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
 		buffer.put(bytes);
 		buffer.flip();

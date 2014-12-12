@@ -1,7 +1,6 @@
 package cn.yuncore.flv;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * FLV tag
@@ -13,6 +12,8 @@ public class FLVTag {
 	private FLVTagHeader header;
 
 	private FLVTagBody body;
+
+	private int length;
 
 	public FLVTagHeader getHeader() {
 		return header;
@@ -30,21 +31,23 @@ public class FLVTag {
 		this.body = body;
 	}
 
-	public int getLength() {
-		return 0;
+	public byte[] encoder() throws CodingException {
+		final ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024 * 2);
+		buffer.put(header.encoder());
+		buffer.put(body.encoder());
+		buffer.flip();
+		final byte[] bytes = new byte[buffer.limit()];
+		buffer.get(bytes);
+		// 除去上一个tag的size
+		this.length = bytes.length - 4;
+		return bytes;
 	}
 
 	/**
-	 * tag二进制数据
-	 * 
-	 * @return
-	 * @throws IOException 
+	 * @return the length
 	 */
-	public byte[] toBytes() throws IOException {
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		out.write(header.toBytes());
-		out.write(body.encoder());
-		return out.toByteArray();
+	public int getLength() {
+		return length;
 	}
 
 	@Override

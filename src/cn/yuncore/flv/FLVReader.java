@@ -80,32 +80,11 @@ public class FLVReader {
 
 	private FLVTagHeader readFLVTagHeader() throws IOException {
 		if (in.getFilePointer() != fileLength) {
-			int previousTagSize = in.readInt();
-			if (previousTagSize != -1) {
-				final FLVTagHeader flvTagHeader = new FLVTagHeader();
-				flvTagHeader.setPreviousTagSize(previousTagSize);
-				// 每一个tag head 为11个字节(与RTMP类似)
-				final byte[] bs = new byte[11];
-				if (in.read(bs) == bs.length) {
-					// tag 在第一个字节
-					flvTagHeader.setType(bs[0]);
-					// tag body 长度为234个字节
-					flvTagHeader.setDataLength(bytesToInt(bs[1], bs[2], bs[3]));
-					// 如果时间戳3位不够会占用4个位
-					if (bs[7] != 0) {
-						// 4个位数的时间戳
-						flvTagHeader.setTimestamp(bytesToInt(bs[4], bs[5],
-								bs[6], bs[7]));
-					} else {
-						// 3个位的时间戳
-						flvTagHeader.setTimestamp(bytesToInt(bs[4], bs[5],
-								bs[6]));
-					}
-
-					flvTagHeader.setStreamid(bytesToInt(bs[8], bs[9], bs[10]));
-					flvTagHeader.setDataPostion(in.getFilePointer());
-					return flvTagHeader;
-				}
+			final FLVTagHeader flvTagHeader = new FLVTagHeader();
+			final byte[] bytes = new byte[15];
+			if (in.read(bytes) == bytes.length) {
+				flvTagHeader.decoder(bytes);
+				return flvTagHeader;
 			}
 		}
 		return null;
@@ -120,8 +99,7 @@ public class FLVReader {
 	 */
 	private void readFLVTagBody(FLVTag tag) throws IOException {
 		if (tag != null && tag.getHeader() != null
-				&& tag.getHeader().getDataLength() > 0
-				&& tag.getHeader().getDataPostion() > -1) {
+				&& tag.getHeader().getDataLength() != -1) {
 			final byte[] bytes = new byte[tag.getHeader().getDataLength()];
 			if ((in.read(bytes)) == bytes.length) {
 				FLVTagBody body = null;
