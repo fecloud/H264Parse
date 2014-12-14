@@ -21,6 +21,7 @@ public class FLVEncoder {
 
 	static final byte AVC_PACKAGE = 0x0;
 	static final byte AVC = 0x1;
+	static final byte AVC_END = 0x2;
 
 	private MediaInputStream in;
 
@@ -54,14 +55,14 @@ public class FLVEncoder {
 			// struct.put("@setDataFrame");
 			struct.put("onMetaData");
 			ECMA_Array array = new ECMA_Array();
-			array.put("duration", new Number(0));
+			array.put("duration", new Number(18.347));
 			array.put("width", new Number(320));
 			array.put("height", new Number(240));
 			array.put("videodatarate", new Number(0));
 			array.put("framerate", new Number(15));
 			array.put("videocodecid", new Number(7));
 			array.put("encoder", new cn.yuncore.flv.lang.String("Lavf56.4.101"));
-			array.put("filesize", new Number(0));
+			array.put("filesize", new Number(330329));
 			struct.putArray(array);
 			writeTag(FLVType.SCRIPT, struct.encoder());
 			Log.d(TAG, Utils.formatBytes(struct.encoder()));
@@ -71,7 +72,7 @@ public class FLVEncoder {
 	}
 
 	/**
-	 * 编码SPS 与 PPS
+	 * 编码SPS 与 PPS 一个文件中 可能会出现多个,只解析一个
 	 * 
 	 * @param sps
 	 * @param pps
@@ -108,18 +109,24 @@ public class FLVEncoder {
 		writeTag(FLVType.VIDEO, bytes);
 	}
 
+	/**
+	 * 一个文件中有多个IDR 只有一个SEI
+	 * 
+	 * @throws IOException
+	 */
 	protected void encodeSEI() throws IOException {
 		buffer.clear();
 		buffer.put((byte) ((FrameType.KEYF_RAME << 4) | Codec.AVC_H264));
-		buffer.put((byte) AVC_PACKAGE).put((byte) 0x0).put((byte) 0x0)
-				.put((byte) 0x0);
+		buffer.put((byte) AVC).put((byte) 0x0).put((byte) 0x0).put((byte) 0x0);
 		// 写入SPS信息
 		buffer.putInt(sps.length).put(sps);
 
 		// 写入PPS信息
 		buffer.putInt(pps.length).put(pps);
 
-		buffer.putInt(sei.length).put(sei);
+		if (!findSEIIDR)
+			buffer.putInt(sei.length).put(sei);
+		findSEIIDR = true;
 
 		buffer.putInt(idr.length).put(idr);
 
@@ -146,6 +153,22 @@ public class FLVEncoder {
 		buffer.put((byte) AVC).put((byte) 0x0).put((byte) 0x0).put((byte) 0x0);
 		// 写入h264长度加数据
 		buffer.putInt(data.length).put(data);
+		buffer.flip();
+		byte[] bytes = new byte[buffer.limit()];
+		buffer.get(bytes);
+		writeTag(FLVType.VIDEO, bytes);
+	}
+
+	/**
+	 * 结束帧
+	 * 
+	 * @throws IOException
+	 */
+	protected void encodeEndFrame() throws IOException {
+		buffer.clear();
+		buffer.put((byte) ((FrameType.KEYF_RAME << 4) | Codec.AVC_H264));
+		buffer.put((byte) AVC_END).put((byte) 0x0).put((byte) 0x0)
+				.put((byte) 0x0);
 		buffer.flip();
 		byte[] bytes = new byte[buffer.limit()];
 		buffer.get(bytes);
@@ -180,9 +203,8 @@ public class FLVEncoder {
 				break;
 			case H264NALUType.IDR:
 				idr = tbyte;
-				if (sei != null && idr != null && !findSEIIDR) {
+				if (sei != null && idr != null) {
 					encodeSEI();
-					findSPSPPS = true;
 				}
 				break;
 			case H264NALUType.SPS:
@@ -200,6 +222,8 @@ public class FLVEncoder {
 				break;
 			}
 		}
+
+		encodeEndFrame();
 
 	}
 }
