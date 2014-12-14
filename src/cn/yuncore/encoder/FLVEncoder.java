@@ -169,6 +169,7 @@ public class FLVEncoder {
 		buffer.put((byte) ((FrameType.KEYF_RAME << 4) | Codec.AVC_H264));
 		buffer.put((byte) AVC_END).put((byte) 0x0).put((byte) 0x0)
 				.put((byte) 0x0);
+		buffer.putInt(0x10);
 		buffer.flip();
 		byte[] bytes = new byte[buffer.limit()];
 		buffer.get(bytes);

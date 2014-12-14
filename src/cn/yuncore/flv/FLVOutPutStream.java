@@ -53,13 +53,15 @@ public class FLVOutPutStream implements MediaOutputStream {
 			header.setPreviousTagSize(tag.getLength());
 		}
 		header.setType(bodyType);
-		header.setTimestamp(time);
+
 		if (tagBody instanceof FLVVideoTagBody) {
 			final FLVVideoTagBody flvVideoTagBody = (FLVVideoTagBody) tagBody;
 			if (flvVideoTagBody.getFrameType() == FrameType.INNER_FRAME) {
-				time += 40;
+				time += 70;
 			}
 		}
+
+		header.setTimestamp(time);
 
 		flvTag.setHeader(header);
 		flvTag.setBody(tagBody);
