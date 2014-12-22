@@ -88,9 +88,10 @@ public class FLVTagHeader {
 		buffer.position(buffer.position() - 1);
 
 		timestamp = buffer.getInt();
-		if ((timestamp & 0xFF) == 0) {
-			timestamp >>= 8;
-		}
+		timestamp >>= 8;
+		buffer.position(buffer.position() - 1);
+		timestamp += buffer.get() << 24;
+
 		buffer.position(buffer.position() - 1);
 		streamid = buffer.getInt();
 		streamid &= 0xFFFFFF;
@@ -109,12 +110,12 @@ public class FLVTagHeader {
 		final byte[] bodyLengthBytes = Utils.int2Byte(dataLength);
 		buffer.put(bodyLengthBytes[1]).put(bodyLengthBytes[2])
 				.put(bodyLengthBytes[3]);
+		// 时间戳
+		buffer.putInt(timestamp << 8);
+		buffer.position(buffer.position() - 1);
+		// 时间戳高8位
+		buffer.put((byte) (timestamp >> 24));
 
-		if (timestamp >= 0xFFFFFFFF) {
-			buffer.putInt(timestamp);
-		} else {
-			buffer.putInt(timestamp << 8);
-		}
 		final byte[] streamidBytes = Utils.int2Byte(streamid);
 		buffer.put(streamidBytes[1]).put(streamidBytes[2])
 				.put(streamidBytes[3]);
